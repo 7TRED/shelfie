@@ -27,6 +27,27 @@ export const initDB = () => {
   return dbPromise;
 };
 
+// Try to persist storage to prevent browser eviction
+export const persistStorage = async () => {
+  if (navigator.storage && navigator.storage.persist) {
+    const isPersisted = await navigator.storage.persisted();
+    if (isPersisted) {
+      console.log("Storage is already persistent.");
+      return true;
+    }
+
+    const isGranted = await navigator.storage.persist();
+    if (isGranted) {
+      console.log("Storage persistence granted.");
+      return true;
+    } else {
+      console.warn("Storage persistence denied by browser/user.");
+      return false;
+    }
+  }
+  return false;
+};
+
 // Check for legacy localStorage data and migrate it
 export const migrateFromLocalStorage = async () => {
   const LOCAL_STORAGE_KEY = 'shelfie_library_v1';

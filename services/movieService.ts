@@ -62,6 +62,7 @@ const fetchTMDB = async (endpoint: string, params: Record<string, string> = {}) 
 
 export const initStorage = async () => {
   await db.initDB();
+  await db.persistStorage();
   await db.migrateFromLocalStorage();
 };
 

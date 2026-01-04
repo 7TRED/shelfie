@@ -7,7 +7,7 @@ import Planner from './components/Planner';
 import SearchResultCard from './components/SearchResultCard';
 import ManualEntryModal from './components/ManualEntryModal';
 import Stats from './components/Stats';
-import { Search, Library, Clock, BarChart2, Film, AlertCircle, Loader2, PlusCircle, Tv, Filter, X, ChevronRight, Book, CalendarDays, Settings, Download, Upload, Share2, Layers, PlayCircle, BookOpen, Check } from 'lucide-react';
+import { Search, Library, Clock, BarChart2, Film, AlertCircle, Loader2, PlusCircle, Tv, Filter, X, ChevronRight, Book, CalendarDays, Settings, Download, Upload, Share2, Layers, PlayCircle, BookOpen, Check, Database } from 'lucide-react';
 
 export default function App() {
   const [view, setView] = useState<ViewState>(ViewState.LIBRARY);
@@ -39,6 +39,9 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isGenreModalOpen, setIsGenreModalOpen] = useState(false);
 
+  // Storage Persistence Status
+  const [isStoragePersisted, setIsStoragePersisted] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize DB
@@ -46,6 +49,13 @@ export default function App() {
     const init = async () => {
         try {
             await movieService.initStorage();
+            
+            // Check persistence status
+            if (navigator.storage && navigator.storage.persisted) {
+              const persisted = await navigator.storage.persisted();
+              setIsStoragePersisted(persisted);
+            }
+
             const loaded = await movieService.getLibrary();
             setMovies(loaded);
         } catch (e) {
@@ -733,8 +743,15 @@ export default function App() {
                  </div>
                  <div className="space-y-4">
                      <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
-                         <h3 className="text-sm font-bold text-white mb-2 flex items-center gap-2"><Share2 size={16} /> Data</h3>
-                         <p className="text-xs text-slate-400 mb-4">Stored locally via IndexedDB.</p>
+                        <h3 className="text-sm font-bold text-white mb-2 flex items-center gap-2"><Database size={16} /> Data & Storage</h3>
+                        <div className="flex items-center gap-2 mb-4 bg-slate-900/50 p-2 rounded-lg border border-slate-800">
+                            <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${isStoragePersisted ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-amber-500'}`} />
+                            <p className="text-xs text-slate-400">
+                                {isStoragePersisted 
+                                    ? "Persistent storage active. Browser won't auto-clear data." 
+                                    : "Standard storage. Browser might clear data if space is low."}
+                            </p>
+                        </div>
                          <div className="flex gap-3">
                              <button onClick={handleExport} className="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold py-2.5 rounded-lg flex items-center justify-center gap-2"><Download size={14} /> Export</button>
                              <button onClick={handleImportClick} className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 rounded-lg flex items-center justify-center gap-2"><Upload size={14} /> Import</button>
