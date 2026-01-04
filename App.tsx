@@ -7,6 +7,7 @@ import Planner from './components/Planner';
 import SearchResultCard from './components/SearchResultCard';
 import ManualEntryModal from './components/ManualEntryModal';
 import Stats from './components/Stats';
+import ReloadPrompt from './components/ReloadPrompt';
 import { Search, Library, Clock, BarChart2, Film, AlertCircle, Loader2, PlusCircle, Tv, Filter, X, ChevronRight, Book, CalendarDays, Settings, Download, Upload, Layers, PlayCircle, BookOpen, Check, Database } from 'lucide-react';
 
 export default function App() {
@@ -417,6 +418,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500/30 pb-24 md:pb-0">
+      <ReloadPrompt />
       
       {/* 1. Global Header */}
       <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-slate-950/80 backdrop-blur-xl supports-[backdrop-filter]:bg-slate-950/60">
