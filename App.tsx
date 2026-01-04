@@ -7,7 +7,7 @@ import Planner from './components/Planner';
 import SearchResultCard from './components/SearchResultCard';
 import ManualEntryModal from './components/ManualEntryModal';
 import Stats from './components/Stats';
-import { Search, Library, Clock, BarChart2, Film, AlertCircle, Loader2, PlusCircle, Tv, Filter, X, ChevronRight, Book, CalendarDays, Settings, Download, Upload, Share2, Layers, PlayCircle, BookOpen, Check, Database } from 'lucide-react';
+import { Search, Library, Clock, BarChart2, Film, AlertCircle, Loader2, PlusCircle, Tv, Filter, X, ChevronRight, Book, CalendarDays, Settings, Download, Upload, Layers, PlayCircle, BookOpen, Check, Database } from 'lucide-react';
 
 export default function App() {
   const [view, setView] = useState<ViewState>(ViewState.LIBRARY);
