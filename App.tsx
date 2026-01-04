@@ -212,9 +212,8 @@ export default function App() {
   };
 
   const handleAddMovie = async (result: SearchResult, targetStatus: MovieStatus) => {
-    // Generate UUID or use timestamp if numeric ID provided
+    // 1. Prepare the new movie object
     const newId = crypto.randomUUID();
-    
     const newMovie: Movie = {
         id: newId,
         tmdbId: typeof result.id === 'number' ? result.id : undefined,
@@ -234,43 +233,56 @@ export default function App() {
         pageCount: result.pageCount
     };
 
-    let movieToSave: Movie | undefined;
+    let movieToSave = newMovie;
+    let isUpdate = false;
 
-    setMovies(prev => {
-        // Check for duplicates
-        const existingIndex = prev.findIndex(m => 
-            (m.tmdbId && m.tmdbId === newMovie.tmdbId) || 
-            (m.openLibraryId && m.openLibraryId === newMovie.openLibraryId)
-        );
+    // 2. Check for duplicates in the current movies state
+    const existingIndex = movies.findIndex(m => 
+        (m.tmdbId && m.tmdbId === newMovie.tmdbId) || 
+        (m.openLibraryId && m.openLibraryId === newMovie.openLibraryId)
+    );
 
-        if (existingIndex >= 0) {
-            const updated = [...prev];
-            updated[existingIndex] = { ...updated[existingIndex], status: targetStatus };
-            movieToSave = updated[existingIndex];
-            return updated;
-        }
-        
-        movieToSave = newMovie;
-        return [newMovie, ...prev];
-    });
+    if (existingIndex >= 0) {
+        const existing = movies[existingIndex];
+        movieToSave = { ...existing, status: targetStatus };
+        isUpdate = true;
+    }
 
-    if (movieToSave) {
+    // 3. Save to DB first
+    try {
         await movieService.saveMovie(movieToSave);
+        
+        // 4. Update UI State only after DB save init (optimistic or awaited)
+        setMovies(prev => {
+            if (isUpdate) {
+                const updated = [...prev];
+                updated[existingIndex] = movieToSave;
+                return updated;
+            }
+            return [movieToSave, ...prev];
+        });
+    } catch (err) {
+        console.error("Failed to save movie", err);
+        // Optionally handle error UI here
     }
   };
 
   const updateMovieDetails = async (id: string, updates: Partial<Movie>) => {
-    let updatedMovie: Movie | undefined;
-    setMovies(prev => prev.map(m => {
-        if (m.id === id) {
-            updatedMovie = { ...m, ...updates };
-            return updatedMovie;
-        }
-        return m;
-    }));
+    // 1. Find and calculate updated movie
+    const movieIndex = movies.findIndex(m => m.id === id);
+    if (movieIndex === -1) return;
 
-    if (updatedMovie) {
+    const currentMovie = movies[movieIndex];
+    const updatedMovie = { ...currentMovie, ...updates };
+
+    // 2. Save to DB
+    try {
         await movieService.saveMovie(updatedMovie);
+
+        // 3. Update State
+        setMovies(prev => prev.map(m => m.id === id ? updatedMovie : m));
+    } catch (err) {
+        console.error("Failed to update movie details", err);
     }
   };
 
@@ -288,7 +300,9 @@ export default function App() {
   };
 
   const deleteMovie = async (id: string) => {
+      // Optimistic delete from UI
       setMovies(prev => prev.filter(m => m.id !== id));
+      // Delete from DB
       await movieService.deleteMovie(id);
   };
 

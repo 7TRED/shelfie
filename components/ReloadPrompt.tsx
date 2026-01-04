@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
-import { RefreshCw, X } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 
 const ReloadPrompt = () => {
   const {
