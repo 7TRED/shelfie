@@ -1,6 +1,6 @@
 import React from 'react';
 import { Movie } from '../types';
-import { Tv, Film, Star, CheckCircle, Clock, Calendar, Book, Plus, Check, X } from 'lucide-react';
+import { Tv, Film, Star, CheckCircle, Clock, Calendar, Book, Plus, X } from 'lucide-react';
 
 interface MovieCardProps {
   movie: Movie;
