@@ -1,0 +1,5 @@
+{
+  "name": "Shelfie",
+  "description": "A quirky personal media tracker. Manage your watchlist, rate watched films, and track your reading list.",
+  "requestFramePermissions": []
+}

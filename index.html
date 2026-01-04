@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f172a" />
+    <title>Shelfie</title>
+    <link rel="manifest" href="/manifest.json" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #0f172a; /* Slate 950 */
+        color: #f8fafc;
+      }
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1e293b;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #475569;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+      }
+      @keyframes slideUp {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      .animate-slide-up {
+        animation: slideUp 0.3s ease-out forwards;
+      }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "recharts": "https://esm.sh/recharts@^3.6.0",
+    "idb": "https://esm.sh/idb@^8.0.3",
+    "vite": "https://esm.sh/vite@^7.3.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', async () => {
+          try {
+            const registration = await navigator.serviceWorker.register('/sw.js');
+
+            // --- Update Handling Logic ---
+
+            const showUpdateToast = (worker) => {
+               if (document.getElementById('sw-update-toast')) return;
+
+               const toast = document.createElement('div');
+               toast.id = 'sw-update-toast';
+               toast.className = "fixed bottom-20 md:bottom-8 right-4 md:right-8 z-[200] bg-slate-800 border border-slate-700 text-white p-4 rounded-xl shadow-2xl flex flex-col gap-3 animate-slide-up max-w-[320px] w-full";
+               toast.innerHTML = `
+                 <div class="flex items-start gap-3">
+                   <div class="bg-indigo-500/20 p-2 rounded-lg text-indigo-400 shrink-0">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                   </div>
+                   <div>
+                      <h4 class="font-bold text-sm text-slate-100">Update Available</h4>
+                      <p class="text-xs text-slate-400 mt-1 leading-relaxed">A new version of Shelfie is available. Update to get the latest features.</p>
+                   </div>
+                 </div>
+                 <div class="flex gap-2 mt-1">
+                   <button id="sw-update-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 px-3 rounded-lg transition-colors shadow-lg shadow-indigo-900/20">Update Now</button>
+                   <button id="sw-dismiss-btn" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold py-2.5 px-3 rounded-lg transition-colors">Dismiss</button>
+                 </div>
+               `;
+               document.body.appendChild(toast);
+
+               document.getElementById('sw-update-btn').addEventListener('click', () => {
+                 worker.postMessage({ type: 'SKIP_WAITING' });
+                 toast.remove();
+               });
+
+               document.getElementById('sw-dismiss-btn').addEventListener('click', () => {
+                 toast.remove();
+               });
+            };
+
+            // 1. Check if there's already a waiting worker (from a previous background update)
+            if (registration.waiting) {
+              showUpdateToast(registration.waiting);
+            }
+
+            // 2. Listen for new updates found during this session
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  // Only show toast if there's an existing controller (meaning it's an update, not first install)
+                  showUpdateToast(newWorker);
+                }
+              });
+            });
+
+            // 3. Reload the page when the new worker takes control
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+              if (!refreshing) {
+                window.location.reload();
+                refreshing = true;
+              }
+            });
+
+          } catch (err) {
+            console.log('SW registration failed', err);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
