@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Movie, MovieStatus } from '../types';
-import { Calendar as CalendarIcon, ChevronRight, Plus, X, Film, Tv, Clock, AlertCircle } from 'lucide-react';
+import { Movie } from '../types';
+import { X, Film, Tv, Clock, AlertCircle } from 'lucide-react';
 
 interface PlannerProps {
   movies: Movie[];
@@ -9,8 +9,6 @@ interface PlannerProps {
 }
 
 const Planner: React.FC<PlannerProps> = ({ movies, onUpdate, onOpenDetails }) => {
-  const [draggedMovieId, setDraggedMovieId] = useState<string | null>(null);
-
   // Group movies
   const watchlist = movies.filter(m => m.status === 'watchlist');
   const scheduled = watchlist.filter(m => m.plannedDate).sort((a, b) => (a.plannedDate! > b.plannedDate! ? 1 : -1));
@@ -62,7 +60,7 @@ const Planner: React.FC<PlannerProps> = ({ movies, onUpdate, onOpenDetails }) =>
 
   const formatDateLabel = (dateStr: string) => {
       if (dateStr === 'overdue') return 'Overdue / Previous';
-      const date = new Date(dateStr);
+      
       const todayDate = new Date();
       todayDate.setHours(0,0,0,0);
       

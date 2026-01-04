@@ -1,7 +1,7 @@
 import React from 'react';
 import { Movie } from '../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { Trophy, Clock, Film, Star, BookOpen } from 'lucide-react';
+import { Clock, Film, Star, BookOpen } from 'lucide-react';
 
 interface StatsProps {
   movies: Movie[];
@@ -71,7 +71,7 @@ const Stats: React.FC<StatsProps> = ({ movies }) => {
                 cursor={{fill: '#334155', opacity: 0.4}}
               />
               <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={32}>
-                {chartData.map((entry, index) => (
+                {chartData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={['#6366f1', '#8b5cf6', '#d97706', '#f43f5e', '#f97316'][index % 5]} />
                 ))}
               </Bar>

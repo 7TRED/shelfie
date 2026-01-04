@@ -7,7 +7,7 @@ import Planner from './components/Planner';
 import SearchResultCard from './components/SearchResultCard';
 import ManualEntryModal from './components/ManualEntryModal';
 import Stats from './components/Stats';
-import { Search, Library, Clock, BarChart2, Film, AlertCircle, Loader2, PlusCircle, Tv, Filter, X, ChevronRight, Book, CalendarDays, Settings, Download, Upload, Share2, Layers, PlayCircle, BookOpen, Check, List } from 'lucide-react';
+import { Search, Library, Clock, BarChart2, Film, AlertCircle, Loader2, PlusCircle, Tv, Filter, X, ChevronRight, Book, CalendarDays, Settings, Download, Upload, Share2, Layers, PlayCircle, BookOpen, Check } from 'lucide-react';
 
 export default function App() {
   const [view, setView] = useState<ViewState>(ViewState.LIBRARY);
@@ -223,7 +223,8 @@ export default function App() {
         pageCount: result.pageCount
     };
 
-    let updatedMovies;
+    let movieToSave: Movie | undefined;
+
     setMovies(prev => {
         // Check for duplicates
         const existingIndex = prev.findIndex(m => 
@@ -234,16 +235,16 @@ export default function App() {
         if (existingIndex >= 0) {
             const updated = [...prev];
             updated[existingIndex] = { ...updated[existingIndex], status: targetStatus };
-            updatedMovies = updated;
+            movieToSave = updated[existingIndex];
             return updated;
         }
-        updatedMovies = [newMovie, ...prev];
-        return updatedMovies;
+        
+        movieToSave = newMovie;
+        return [newMovie, ...prev];
     });
 
-    if (updatedMovies) {
-        const m = updatedMovies.find(m => m.id === newId) || updatedMovies[0]; // fallback
-        await movieService.saveMovie(newMovie);
+    if (movieToSave) {
+        await movieService.saveMovie(movieToSave);
     }
   };
 
